@@ -75,4 +75,41 @@ public extension UIImageView {
             }
         }
     }
+    
+    /**
+     Uses the user's defaults database to load a `UIImageView` with an image from a provided custom loader, with a provided key.
+     
+     If the image is not stored in the database, it will execute loader and store it in the database. If the image is stored in the database it will load the image and from the database and then optionally update with the loader.
+     
+     - Parameter key: The key with which to associate the value.
+     
+     - Parameter checkForUpdates: Boolean whether to check for an updated image from the server. If true, will always query the server for the image. If false, will only query the server if fails to load the image from the current user's defaults database.
+     
+     - Paramerter loader: Handler to execute your custom image loading code. The handler must call the completionHandler provided to it as a parameter, so that the uiimageview and user's defaults database is updated with the loaded image.
+     */
+    public func loadCachedImage(withKey key: String, checkForUpdates: Bool, withLoader loader: @escaping (@escaping (UIImage?) -> ()) -> ()) {
+        if let image = UIImage(forKey: key) {
+            os_log("Successfully loaded image with key '%s' from cache", key)
+            self.image = image
+            if checkForUpdates {
+                loader() { (image: UIImage?) -> Void in
+                    if let image = image {
+                        os_log("Successfully updated image with key '%s' from loader. Saving to cache.", key)
+                        self.image = image
+                        self.image?.saveImage(forKey: key)
+                    }
+                }
+            }
+        }
+        else {
+            os_log("Failed to load image with key '%s' from cache. Downloading.", key)
+            loader() { (image: UIImage?) -> Void in
+                if let image = image {
+                    os_log("Successfully loaded image with key '%s' from loader. Saving to cache.", key)
+                    self.image = image
+                    self.image?.saveImage(forKey: key)
+                }
+            }
+        }
+    }
 }
