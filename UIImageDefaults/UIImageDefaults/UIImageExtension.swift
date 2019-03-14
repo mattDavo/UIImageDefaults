@@ -30,13 +30,27 @@ fileprivate func escapeKey(_ key: String) -> String {
 
 public extension UIImage {
     
-    public convenience init?(forKey: String) {
-        let key = escapeKey(forKey)
-        if isKeyEmpty(key) {
+    /**
+     Path to the folder in the App's documents directory where we store all UIImageDefaults images.
+     */
+    private static var imagesPath: String {
+        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+        let documentPath = paths[0] as NSString
+        return documentPath.appendingPathComponent(imagesDir)
+    }
+    
+    /**
+     Initializes and returns the image object with the specified key in the current user's defaults database.
+     
+     - Parameter key: A key in the current user‘s defaults database.
+     */
+    public convenience init?(forKey key: String) {
+        let escapedKey = escapeKey(key)
+        if isKeyEmpty(escapedKey) {
             return nil
         }
         
-        if let data = UIImage.getImageData(forKey: key) {
+        if let data = UIImage.getImageData(forKey: escapedKey) {
             self.init(data: data)
         }
         else {
@@ -44,51 +58,29 @@ public extension UIImage {
         }
     }
     
-    private static var imagesPath: String {
-        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        let documentPath = paths[0] as NSString
-        return documentPath.appendingPathComponent(imagesDir)
-    }
-    
-    public class func removeImage(forKey: String) {
-        let key = escapeKey(forKey)
-        if isKeyEmpty(key) {
-            return
-        }
-        
-        let fullPath = (UIImage.imagesPath as NSString).appendingPathComponent(key)
-        
-        // Remove old image if it exists
-        if UIImage(contentsOfFile: fullPath) != nil  {
-            let fileManager = FileManager.default
-            do {
-                try fileManager.removeItem(atPath: fullPath)
-                os_log("Successfully removed image with key '%s'.", key)
-            } catch {
-                os_log(.error, "Failed to delete image with key: '%s'. Error: %s", key, error.localizedDescription)
-            }
-        }
-        else {
-            os_log(.error, "Could not remove image with key '%s' as it does not exist.", key)
-        }
-    }
-    
-    public class func removeImages() {
-        let fileManager = FileManager.default
+    /**
+     Returns the data value associated with the specified key.
+     
+     - Parameter key: A key in the current user‘s defaults database.
+     
+     - Returns: The data value associated with the specified key. If the key doesn‘t exist, this method returns nil.
+     */
+    private class func getImageData(forKey key: String) -> Data? {
         do {
-            let directoryContents: NSArray = try fileManager.contentsOfDirectory(atPath: UIImage.imagesPath) as NSArray
-            
-            for path in directoryContents {
-                let fullPath = (UIImage.imagesPath as NSString).appendingPathComponent(path as! String)
-                try fileManager.removeItem(atPath: fullPath)
-            }
-            os_log("Successfully removed all images from storage.")
+            let fullPath = (self.imagesPath as NSString).appendingPathComponent(key)
+            return try NSData(contentsOfFile: fullPath) as Data
         }
         catch {
-            os_log(.error, "Failed to remove images: ", error.localizedDescription)
+            os_log(.error, "Failed to load image: %s", error.localizedDescription)
+            return nil
         }
     }
     
+    /**
+     Stores the image with the given key.
+     
+     - Parameter key: The key with which to associate the value.
+     */
     public func saveImage(forKey: String) {
         let key = escapeKey(forKey)
         if isKeyEmpty(key) {
@@ -128,17 +120,13 @@ public extension UIImage {
         }
     }
     
-    private class func getImageData(forKey relativePath: String) -> Data? {
-        do {
-            let fullPath = (self.imagesPath as NSString).appendingPathComponent(relativePath)
-            return try NSData(contentsOfFile: fullPath) as Data
-        }
-        catch {
-            os_log(.error, "Failed to load image: %s", error.localizedDescription)
-            return nil
-        }
-    }
-    
+    /**
+     Returns the uiimage value associated with the specified key.
+     
+     - Parameter key: A key in the current user‘s defaults database.
+     
+     - Returns: The uiimage value associated with the specified key. If the key doesn‘t exist, this method returns nil.
+     */
     public class func getImage(forKey: String) -> UIImage? {
         let key = escapeKey(forKey)
         if isKeyEmpty(key) {
@@ -158,6 +146,53 @@ public extension UIImage {
         }
         else {
             return nil
+        }
+    }
+    
+    /**
+     Removes the uiimage of the specified key.
+     
+     - Parameter key: A key in the current user‘s defaults database.
+     */
+    public class func removeImage(forKey: String) {
+        let key = escapeKey(forKey)
+        if isKeyEmpty(key) {
+            return
+        }
+        
+        let fullPath = (UIImage.imagesPath as NSString).appendingPathComponent(key)
+        
+        // Remove old image if it exists
+        if UIImage(contentsOfFile: fullPath) != nil  {
+            let fileManager = FileManager.default
+            do {
+                try fileManager.removeItem(atPath: fullPath)
+                os_log("Successfully removed image with key '%s'.", key)
+            } catch {
+                os_log(.error, "Failed to delete image with key: '%s'. Error: %s", key, error.localizedDescription)
+            }
+        }
+        else {
+            os_log(.error, "Could not remove image with key '%s' as it does not exist.", key)
+        }
+    }
+    
+    /**
+     Removes the all uiimages from the current user's defaults database.
+     */
+    public class func removeImages() {
+        let fileManager = FileManager.default
+        do {
+            let directoryContents: NSArray = try fileManager.contentsOfDirectory(atPath: UIImage.imagesPath) as NSArray
+            
+            for path in directoryContents {
+                let fullPath = (UIImage.imagesPath as NSString).appendingPathComponent(path as! String)
+                try fileManager.removeItem(atPath: fullPath)
+            }
+            os_log("Successfully removed all images from storage.")
+        }
+        catch {
+            os_log(.error, "Failed to remove images: ", error.localizedDescription)
         }
     }
 }
