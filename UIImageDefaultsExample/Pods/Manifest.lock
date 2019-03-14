@@ -1,0 +1,16 @@
+PODS:
+  - UIImageDefaults (0.0.1)
+
+DEPENDENCIES:
+  - UIImageDefaults (from `../`)
+
+EXTERNAL SOURCES:
+  UIImageDefaults:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  UIImageDefaults: f002b909000d222dfa359c8ffe58a5d1e8e3ce04
+
+PODFILE CHECKSUM: 846f3db8e19c62049e785677b63e92e84c0fc892
+
+COCOAPODS: 1.5.3

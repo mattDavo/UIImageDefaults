@@ -1,0 +1,6 @@
+framework module UIImageDefaults {
+  umbrella header "UIImageDefaults-umbrella.h"
+
+  export *
+  module * { export * }
+}

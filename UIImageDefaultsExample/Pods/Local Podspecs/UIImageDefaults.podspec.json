@@ -1,0 +1,20 @@
+{
+  "name": "UIImageDefaults",
+  "version": "0.0.1",
+  "summary": "A short description of UIImageDefaults.",
+  "description": "Makes saving your images to UserDefaults easy.",
+  "homepage": "http://EXAMPLE/UIImageDefaults",
+  "license": "MIT",
+  "authors": {
+    "Matthew Davidson": "mad1512@optusnet.com.au"
+  },
+  "platforms": {
+    "ios": "12.0"
+  },
+  "source": {
+    "path": ""
+  },
+  "source_files": "UIImageDefaults/UIImageDefaults",
+  "exclude_files": "Classes/Exclude",
+  "swift_version": "4.2"
+}
