@@ -2,7 +2,11 @@
 Simple Swift extension for locally saving and loading images with ease.
 
 ## Installation - TODO
-Using pods
+### Cocoa Pods
+You can use [CocoaPods](https://cocoapods.org/) to install `UIImageDefaults` by adding it to your Podfile:
+```ruby
+pod 'UIImageDefaults', '~> 1.0.0'
+```
 
 ## Usage
 
