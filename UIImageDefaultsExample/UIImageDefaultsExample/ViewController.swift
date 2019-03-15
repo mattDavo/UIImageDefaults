@@ -38,5 +38,26 @@ class ViewController: UIViewController {
                 }
             }.resume()
         }
+        
+        imageView.loadCachedImage(withKey: "github", checkForUpdates: true, withLoader: customImageLoader(url: "https://avatars0.githubusercontent.com/u/9919?s=280&v=4"))
+        
+    }
+    
+    func customImageLoader(url: String) -> ((@escaping (UIImage?) ->()) -> Void) {
+        return { (done: @escaping (UIImage?) -> Void) in
+            URLSession.shared.dataTask(with: URL(string: url)!) {
+                (data: Data?, resposnse: URLResponse?, error: Error?) -> Void in
+                guard let data = data, error == nil else {
+                    // Call the completion handler when you've failed
+                    done(nil)
+                    os_log("Failed to download image: %s", (error?.localizedDescription)!)
+                    return
+                }
+                DispatchQueue.main.async {
+                    // And call the completion handler when you've succeded
+                    done(UIImage(data: data))
+                }
+            }.resume()
+        }
     }
 }
